@@ -1,0 +1,20 @@
+<phpunit colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="true"
+         bootstrap="vendor/autoload.php"
+         stderr="true">
+    <testsuites>
+        <testsuite name="Test Suite">
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src/Core/Domain</directory>
+            <directory suffix=".php">src/Core/Application</directory>
+            <directory suffix=".php">src/SharedKernel</directory>
+        </whitelist>
+    </filter>
+</phpunit>

@@ -1,0 +1,3 @@
+index:
+    path: /
+    controller: Core\UInterface\Controller\DefaultController::index
