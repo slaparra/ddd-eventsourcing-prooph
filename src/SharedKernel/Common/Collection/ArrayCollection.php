@@ -17,12 +17,12 @@ class ArrayCollection implements Collection
         $this->collection = new DoctrineArrayCollection($array);
     }
 
-    public static function createFromArray(array $elements): self
+    public static function createFromArray(array $elements)
     {
         return new static($elements);
     }
 
-    public static function createEmpty(): self
+    public static function createEmpty()
     {
         return new static([]);
     }
@@ -75,9 +75,9 @@ class ArrayCollection implements Collection
         $this->collection->offsetUnset($offset);
     }
 
-    public function filter(Closure $p): Collection
+    public function filter(Closure $filterMethod): Collection
     {
-        return $this->createFromArray($this->collection->filter($p)->toArray());
+        return $this->createFromArray($this->collection->filter($filterMethod)->toArray());
     }
 
     public function map(Closure $func): Collection
@@ -186,8 +186,8 @@ class ArrayCollection implements Collection
         return $this->collection->next();
     }
 
-    public function exists(Closure $p): bool
+    public function exists(Closure $existsAssertionFunction): bool
     {
-        return $this->collection->exists($p);
+        return $this->collection->exists($existsAssertionFunction);
     }
 }

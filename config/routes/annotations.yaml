@@ -1,0 +1,3 @@
+controllers:
+    resource: ../../src/Core/UInterface/Controller/
+    type: annotation

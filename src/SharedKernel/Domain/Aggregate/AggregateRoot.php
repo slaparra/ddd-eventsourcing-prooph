@@ -24,9 +24,9 @@ abstract class AggregateRoot extends Entity
         $this->domainEvents->add($domainEvent);
     }
 
-    public function pullEvents()
+    public function pullEvents(): EventStream
     {
-        $events = $this->domainEvents->toArray();
+        $events = EventStream::createFromArray($this->domainEvents->toArray());
         $this->domainEvents->clear();
 
         return $events;

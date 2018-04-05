@@ -2,11 +2,41 @@
     "beberlei/assert": {
         "version": "v2.9.3"
     },
+    "composer/semver": {
+        "version": "1.4.2"
+    },
+    "doctrine/annotations": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "cb4152ebcadbe620ea2261da1a1c5a9b8cea7672"
+        }
+    },
     "doctrine/collections": {
         "version": "v1.5.0"
     },
     "doctrine/instantiator": {
         "version": "1.1.0"
+    },
+    "doctrine/lexer": {
+        "version": "v1.0.1"
+    },
+    "friendsofphp/php-cs-fixer": {
+        "version": "2.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.2",
+            "ref": "81dee417d2cc60cd1c9d6208dff2ec22a1103e93"
+        }
+    },
+    "pdepend/pdepend": {
+        "version": "2.5.2"
+    },
+    "php-cs-fixer/diff": {
+        "version": "v1.3.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "1.0.1"
@@ -16,6 +46,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "0.4.0"
+    },
+    "phpmd/phpmd": {
+        "version": "2.6.0"
     },
     "phpspec/prophecy": {
         "version": "1.7.5"
@@ -43,6 +76,9 @@
     },
     "sebastian/recursion-context": {
         "version": "3.0.0"
+    },
+    "squizlabs/php_codesniffer": {
+        "version": "3.2.3"
     },
     "symfony/asset": {
         "version": "v4.0.6"
@@ -106,6 +142,9 @@
     },
     "symfony/lts": {
         "version": "4-dev"
+    },
+    "symfony/options-resolver": {
+        "version": "v4.0.6"
     },
     "symfony/phpunit-bridge": {
         "version": "3.3",

@@ -1,0 +1,272 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../../vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+
+class CodeQualityTool extends Application
+{
+    /** @var OutputInterface */
+    private $output;
+
+    /** @var InputInterface */
+    private $input;
+
+    /** @var array */
+    private $files;
+
+    /** @var string */
+    private $rootPath;
+
+    const PHP_FILES_IN_SRC = '/^src\/(.*)(\.php)$/';
+    const PHP_FILES_IN_TEST = '/^test\/(.*)(\.php)$/';
+
+    public function __construct()
+    {
+        parent::__construct('Code Quality Tool', '1.0.0');
+        $this->rootPath = realpath(__DIR__ . '/../../');
+    }
+
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        $this->input = $input;
+        $this->output = $output;
+
+        $this->extractCommitedFiles();
+        if ($this->areTherePhpFilesModified()) {
+            $this->checkComposer();
+            $this->phpLint();
+            $this->codeStyleCsFixer();
+            $this->codeSnifferPhpCsPsr2();
+            $this->phPmd();
+            $this->unitTests();
+        }
+
+        $this->output->writeln('<info>You can push!</info>');
+    }
+
+    private function extractCommitedFiles()
+    {
+        $this->output->writeln('<fg=white;options=bold;bg=red>Code Quality Tool</fg=white;options=bold;bg=red>');
+        $this->output->writeln('<info>Fetching files</info>');
+
+        $output = [];
+        $rc = 0;
+
+        exec('git rev-parse --verify HEAD 2> /dev/null', $output, $rc);
+
+        $against = 'e24e5d5ab42e84de4a184ae8aec73e8f4e322b75';
+        if ($rc == 0) {
+            $against = 'HEAD';
+        }
+
+        exec("git diff-index --cached --name-status $against | egrep '^(A|M)' | awk '{print $2;}'", $output);
+
+        $this->files = $output;
+    }
+
+    private function areTherePhpFilesModified()
+    {
+        $commitWithPhpFiles = false;
+        foreach ($this->files as $file) {
+            if (preg_match(self::PHP_FILES_IN_SRC, $file) || preg_match(self::PHP_FILES_IN_TEST, $file)) {
+                $commitWithPhpFiles = true;
+                continue;
+            }
+        }
+
+        return $commitWithPhpFiles;
+    }
+
+    private function checkComposer()
+    {
+        $this->output->writeln('<info>Check composer</info>');
+
+        $composerJsonDetected = false;
+        $composerLockDetected = false;
+
+        foreach ($this->files as $file) {
+            if ($file === 'composer.json') {
+                $composerJsonDetected = true;
+            }
+
+            if ($file === 'composer.lock') {
+                $composerLockDetected = true;
+            }
+        }
+
+        if ($composerJsonDetected && !$composerLockDetected) {
+            throw new Exception('composer.lock must be commited if composer.json is modified!');
+        }
+    }
+
+    private function phpLint()
+    {
+        $this->output->writeln('<info>Running PHPLint</info>');
+        $needle = '/(\.php)|(\.inc)$/';
+        $succeed = true;
+
+        foreach ($this->files as $file) {
+            if (!preg_match($needle, $file)) {
+                continue;
+            }
+
+            $process = new Process(['php', '-l', $file]);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                $this->output->writeln($file);
+                $this->output->writeln(sprintf('<error>%s</error>', trim($process->getErrorOutput())));
+
+                if ($succeed) {
+                    $succeed = false;
+                }
+            }
+        }
+
+        if (!$succeed) {
+            throw new Exception('There are some PHP syntax errors!');
+        }
+    }
+
+    private function codeStyleCsFixer()
+    {
+        $this->output->writeln('<info>Checking code style</info>');
+        $succeed = true;
+
+        foreach ($this->files as $file) {
+            $testFile = preg_match(self::PHP_FILES_IN_TEST, $file);
+            $srcFile = preg_match(self::PHP_FILES_IN_SRC, $file);
+
+            if (!$testFile && !$srcFile) {
+                continue;
+            }
+
+            $fixers = '-psr0';
+            if ($srcFile || $testFile) {
+                $fixers = '-psr0,line_ending,short_scalar_cast,indentation_type, cast_spaces, no_closing_tag, no_blank_lines_after_phpdoc, no_blank_lines_after_class_opening, blank_line_before_return,lowercase_keywords,no_trailing_whitespace_in_comment,no_closing_tag, no_useless_return, no_extra_blank_lines,elseif,function_declaration,blank_line_after_namespace,blank_line_after_opening_tag,braces,full_opening_tag,no_unused_imports, no_whitespace_before_comma_in_array';
+            }
+            $phpCsFixer = new Process(
+                ['php', 'bin/php-cs-fixer', '--dry-run','--diff-format=udiff', '--diff', '--verbose', 'fix', $file, '--rules=' . $fixers]
+            );
+
+            $phpCsFixer->setWorkingDirectory($this->rootPath);
+            $phpCsFixer->run();
+
+            if (!$phpCsFixer->isSuccessful()) {
+                $this->output->writeln(sprintf('<error>%s</error>' . "\r\n", trim($phpCsFixer->getOutput())));
+
+                if ($succeed) {
+                    $succeed = false;
+                }
+            }
+        }
+
+        if (!$succeed) {
+            throw new Exception(sprintf('There are coding standards violations!'));
+        }
+    }
+
+    private function codeSnifferPhpCsPsr2()
+    {
+        $this->output->writeln('<info>Checking code style with PHPCS</info>');
+        $succeed = true;
+
+        foreach ($this->files as $file) {
+            $srcFile = preg_match(self::PHP_FILES_IN_SRC, $file);
+            if (!$srcFile) {
+                continue;
+            }
+
+            $phpCsFixer = new Process(
+                [
+                    'php',
+                    'bin/phpcs',
+                    '--standard='.__DIR__ . '/../codingstandard/rulesetPHPCS.xml',
+                    $file
+                ]
+            );
+            $phpCsFixer->setWorkingDirectory($this->rootPath);
+            $phpCsFixer->run();
+
+            if (!$phpCsFixer->isSuccessful()) {
+                $this->output->writeln(sprintf('<error>%s</error>', trim($phpCsFixer->getOutput())));
+
+                if ($succeed) {
+                    $succeed = false;
+                }
+            }
+        }
+
+        if (!$succeed) {
+            throw new Exception(sprintf('There are PHPCS coding standards violations!'));
+        }
+    }
+
+    private function phPmd()
+    {
+        $this->output->writeln('<info>Checking code mess with PHPMD</info>');
+        $needle = self::PHP_FILES_IN_SRC;
+        $succeed = true;
+
+        foreach ($this->files as $file) {
+            if (!preg_match($needle, $file)) {
+                continue;
+            }
+
+            $process = new Process(
+                [
+                    'php',
+                    'bin/phpmd',
+                    $file,
+                    'text',
+                    __DIR__ . '/../codingstandard/PmdRules.xml',
+                    '--minimumpriority',
+                    1
+                ]
+            );
+
+            $process->setWorkingDirectory($this->rootPath);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                $this->output->writeln($file);
+                $this->output->writeln(sprintf('<error>%s</error>', trim($process->getErrorOutput())));
+                $this->output->writeln(sprintf('<info>%s</info>', trim($process->getOutput())));
+                if ($succeed) {
+                    $succeed = false;
+                }
+            }
+        }
+
+        if (!$succeed) {
+            throw new Exception(sprintf('There are PHPMD violations!'));
+        }
+    }
+
+    private function unitTests()
+    {
+        $this->output->writeln('<info>Running unit tests</info>');
+
+        $phpunit = new Process(['php', 'bin/phpunit']);
+        $phpunit->setWorkingDirectory($this->rootPath);
+        $phpunit->setTimeout(3600);
+
+        $phpunit->run(
+            function ($type, $buffer) {
+                $this->output->write($buffer);
+            }
+        );
+
+        if (!$phpunit->isSuccessful()) {
+            throw new Exception('Fix the unit tests with errors!');
+        }
+    }
+}
+
+$console = new CodeQualityTool();
+$console->run();

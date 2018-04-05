@@ -24,7 +24,7 @@ class AddressTest extends TestCase
             self::POSTAL_CODE
         );
 
-        $this->assertEquals(self::A_STREET_NAME, $address->streetName());
+        $this->assertEquals(self::A_STREET_NAME, $address->street());
         $this->assertEquals(self::CITY, $address->city());
         $this->assertEquals(self::A_STATE, $address->state());
         $this->assertEquals(self::A_COUNTRY, $address->country());

@@ -76,9 +76,9 @@ interface Collection extends Countable, IteratorAggregate, ArrayAccess
      */
     public function next();
 
-    public function exists(Closure $p): bool;
+    public function exists(Closure $existsAssertionFunction): bool;
 
-    public function filter(Closure $p): Collection;
+    public function filter(Closure $filterMethod): Collection;
 
     public function map(Closure $func): Collection;
 

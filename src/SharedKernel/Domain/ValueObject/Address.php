@@ -9,7 +9,7 @@ class Address
     /**
      * @var string
      */
-    private $streetName;
+    private $street;
 
     /**
      * @var string
@@ -31,18 +31,18 @@ class Address
      */
     private $postalCode;
 
-    public function __construct(string $streetName, string $city, string $state, string $country, string $postalCode)
+    public function __construct(string $street, string $city, string $state, string $country, string $postalCode)
     {
-        $this->setStreetName($streetName);
+        $this->setStreet($street);
         $this->setCity($city);
         $this->state = $state;
         $this->country = $country;
         $this->setPostalCode($postalCode);
     }
 
-    public function streetName(): string
+    public function street(): string
     {
-        return $this->streetName;
+        return $this->street;
     }
 
     public function city(): string
@@ -65,10 +65,10 @@ class Address
         return $this->postalCode;
     }
 
-    private function setStreetName(string $streetName): void
+    private function setStreet(string $streetName): void
     {
         Assertion::minLength($streetName, 5, 'Street name length should be greater than 5');
-        $this->streetName = $streetName;
+        $this->street = $streetName;
     }
 
     private function setCity(string $city): void
@@ -77,7 +77,7 @@ class Address
         $this->city = $city;
     }
 
-    protected function setPostalCode(string $postalCode): void
+    private function setPostalCode(string $postalCode): void
     {
         Assertion::nullOrMaxLength($postalCode, 10, 'Postal code should be null or length less than 10');
         $this->postalCode = $postalCode;
