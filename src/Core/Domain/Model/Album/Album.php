@@ -6,7 +6,7 @@ use SharedKernel\Common\Collection\ArrayCollection;
 use SharedKernel\Common\Collection\Collection;
 use SharedKernel\Domain\Aggregate\AggregateRoot;
 use Core\Domain\Model\Artist\Artist;
-use Core\Domain\Model\Track\Entity\Track;
+use Core\Domain\Model\Track\Track;
 
 class Album extends AggregateRoot
 {

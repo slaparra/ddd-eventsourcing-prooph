@@ -18,6 +18,7 @@ use Test\Core\Domain\Model\Track\Entity\FakeTrackBuilder;
 class SearchTracksCommandHandlerTest extends TestCase
 {
     const ANY_PAGE_NUMBER = 3;
+
     /**
      * @var TrackRepository | ObjectProphecy
      */
@@ -89,11 +90,7 @@ class SearchTracksCommandHandlerTest extends TestCase
         );
     }
 
-    /**
-     * @param $command
-     * @return \Closure
-     */
-    protected function assertTrackRepositoryCriteriaIsBuiltWithProperValues($command): \Closure
+    private function assertTrackRepositoryCriteriaIsBuiltWithProperValues(SearchTracksCommand $command): \Closure
     {
         return function (TrackRepositoryCriteria $trackRepositoryCriteria) use ($command) {
             return $trackRepositoryCriteria->albumTitle() === $command->albumTitle()

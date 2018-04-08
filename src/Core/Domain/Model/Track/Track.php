@@ -83,6 +83,8 @@ class Track extends AggregateRoot
         $this->milliseconds = $milliseconds;
         $this->bytes = $bytes;
         $this->unitPrice = $unitPrice;
+
+        //@todo missing event
     }
 
     public static function create(

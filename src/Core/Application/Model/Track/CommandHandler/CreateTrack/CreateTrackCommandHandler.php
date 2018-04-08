@@ -3,6 +3,7 @@
 namespace Core\Application\Model\Track\CommandHandler\CreateTrack;
 
 use Core\Domain\Model\Album\AlbumId;
+use Core\Domain\Model\Album\AlbumNotFoundException;
 use Core\Domain\Model\Track\Genre;
 use Core\Domain\Model\Track\MediaType;
 use Core\Domain\Model\Track\TrackId;
@@ -38,6 +39,7 @@ class CreateTrackCommandHandler extends CommandHandler
      * @param Command|CreateTrackCommand $command
      *
      * @return NullCommandResult
+     * @throws AlbumNotFoundException
      */
     protected function doHandle(Command $command): CommandResult
     {
