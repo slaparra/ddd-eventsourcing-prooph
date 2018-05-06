@@ -2,6 +2,7 @@
 
 namespace Core\Domain\Model\Track;
 
+use Core\Domain\Model\Album\AlbumId;
 use Core\Domain\Model\Invoice\InvoiceLine;
 use SharedKernel\Common\Collection\ArrayCollection;
 use SharedKernel\Common\Collection\Collection;
@@ -17,9 +18,9 @@ class Track extends AggregateRoot
     private $name;
 
     /**
-     * @var Album
+     * @var AlbumId
      */
-    private $album;
+    private $albumId;
 
     /**
      * @var MediaType
@@ -76,7 +77,7 @@ class Track extends AggregateRoot
         $this->invoiceLines = ArrayCollection::createEmpty();
         $this->playLists = ArrayCollection::createEmpty();
         $this->name = $name;
-        $this->album = $album;
+        $this->albumId = $album->id();
         $this->mediaType = $mediaType;
         $this->genre = $genre;
         $this->composer = $composer;
@@ -106,9 +107,9 @@ class Track extends AggregateRoot
         return $this->name;
     }
 
-    public function album(): Album
+    public function albumId(): AlbumId
     {
-        return $this->album;
+        return $this->albumId;
     }
 
     public function mediaType(): MediaType

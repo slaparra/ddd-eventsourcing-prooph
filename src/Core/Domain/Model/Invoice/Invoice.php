@@ -2,6 +2,7 @@
 
 namespace Core\Domain\Model\Invoice;
 
+use Core\Domain\Model\Customer\CustomerId;
 use Core\Domain\Model\Track\Track;
 use SharedKernel\Common\Collection\ArrayCollection;
 use SharedKernel\Common\Collection\Collection;
@@ -12,9 +13,9 @@ use SharedKernel\Domain\ValueObject\Address;
 class Invoice extends AggregateRoot
 {
     /**
-     * @var Customer
+     * @var CustomerId
      */
-    private $customer;
+    private $customerId;
 
     /**
      * @var \DateTimeImmutable
@@ -27,17 +28,14 @@ class Invoice extends AggregateRoot
     private $billingAddress;
 
     /**
-     * @var Collection
+     * @var InvoiceLines
      */
     private $invoiceLines;
 
     protected function __construct(InvoiceId $id, Customer $customer, Address $billingAddress)
     {
         parent::__construct($id);
-        $this->invoiceLines = ArrayCollection::createEmpty();
-        $this->customer = $customer;
-        $this->billingAddress = $billingAddress;
-        $this->invoiceLines = ArrayCollection::createEmpty();
+
         $this->addEvent(
             InvoiceCreatedEvent::fromPayload(
                 $this->id(),
@@ -53,14 +51,21 @@ class Invoice extends AggregateRoot
         );
     }
 
+    protected function whenInvoiceCreatedEvent(InvoiceCreatedEvent $invoiceCreatedEvent)
+    {
+        $this->customerId = $invoiceCreatedEvent->getCustomerId();
+        $this->billingAddress = $invoiceCreatedEvent->getBillingAddress();
+        $this->invoiceLines = InvoiceLines::createEmpty();
+    }
+
     public static function create(InvoiceId $id, Customer $customer, Address $billingAddress): Invoice
     {
         return new self($id, $customer, $billingAddress);
     }
 
-    public function customer(): Customer
+    public function customerId(): CustomerId
     {
-        return $this->customer;
+        return $this->customerId;
     }
 
     public function invoiceDate(): \DateTimeImmutable
@@ -90,27 +95,30 @@ class Invoice extends AggregateRoot
         float $unitPrice,
         int $quantity
     ): void {
-        $invoiceLine = new InvoiceLine(
-            $this,
-            $invoiceLineId,
-            $track,
-            $unitPrice,
-            $quantity
-        );
-
-        $this->invoiceLines->add($invoiceLine);
-
         $this->addEvent(
             InvoiceLineAddedEvent::fromPayload(
                 $this->id(),
                 [
-                    InvoiceLineAddedEvent::INVOICE_LINE_ID => $invoiceLine->id()->toString(),
+                    InvoiceLineAddedEvent::INVOICE_LINE_ID => $invoiceLineId->toString(),
                     InvoiceLineAddedEvent::TRACK_ID => $track->id()->toString(),
-                    InvoiceLineAddedEvent::UNIT_PRICE => $invoiceLine->unitPrice(),
-                    InvoiceLineAddedEvent::QUANTITY => $invoiceLine->quantity()
+                    InvoiceLineAddedEvent::UNIT_PRICE => $unitPrice,
+                    InvoiceLineAddedEvent::QUANTITY => $quantity
                 ]
             )
         );
+    }
+
+    protected function whenInvoiceLineAddedEvent(InvoiceLineAddedEvent $invoiceLineAddedEvent)
+    {
+        $invoiceLine = new InvoiceLine(
+            $this,
+            $invoiceLineAddedEvent->getInvoiceLineId(),
+            $invoiceLineAddedEvent->trackId(),
+            $invoiceLineAddedEvent->unitPrice(),
+            $invoiceLineAddedEvent->quantity()
+        );
+
+        $this->invoiceLines->add($invoiceLine);
     }
 
     public function removeInvoiceLine(InvoiceLine $invoiceLine)

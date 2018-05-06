@@ -30,4 +30,9 @@ class InvoiceCreatedEvent extends DomainEvent
             $this->get(self::BILLING_ADDRESS_POSTAL_CODE)
         );
     }
+
+    protected function buildAggregateId(string $aggregateId)
+    {
+        return InvoiceId::fromString($aggregateId);
+    }
 }

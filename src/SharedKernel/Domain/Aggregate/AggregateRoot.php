@@ -2,33 +2,52 @@
 
 namespace SharedKernel\Domain\Aggregate;
 
+use Prooph\EventSourcing\AggregateChanged;
 use SharedKernel\Domain\Event\DomainEvent;
 use SharedKernel\Common\Uuid;
 use SharedKernel\Domain\Event\EventStream;
 
-abstract class AggregateRoot extends Entity
+abstract class AggregateRoot extends \Prooph\EventSourcing\AggregateRoot
 {
-    /**
-     * @var EventStream
-     */
-    private $domainEvents;
+    use EntityIdTrait;
 
     protected function __construct(Uuid $id)
     {
-        parent::__construct($id);
-        $this->domainEvents = EventStream::createEmpty();
+        $this->setId($id);
     }
 
     protected function addEvent(DomainEvent $domainEvent)
     {
-        $this->domainEvents->add($domainEvent);
+        $this->recordThat($domainEvent);
     }
 
     public function pullEvents(): EventStream
     {
-        $events = EventStream::createFromArray($this->domainEvents->toArray());
-        $this->domainEvents->clear();
+        return EventStream::createFromArray($this->popRecordedEvents());
+    }
 
-        return $events;
+    protected function aggregateId(): string
+    {
+        return $this->id()->toString();
+    }
+
+    protected function apply(AggregateChanged $event): void
+    {
+        $handler = $this->determineEventHandlerMethodFor($event);
+
+        if (!method_exists($this, $handler)) {
+            throw new \RuntimeException(sprintf(
+                'Missing event handler method %s for aggregate root %s',
+                $handler,
+                get_class($this)
+            ));
+        }
+
+        $this->{$handler}($event);
+    }
+
+    protected function determineEventHandlerMethodFor(AggregateChanged $e): string
+    {
+        return 'when' . implode(array_slice(explode('\\', get_class($e)), -1));
     }
 }

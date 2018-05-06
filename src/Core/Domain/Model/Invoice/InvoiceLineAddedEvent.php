@@ -31,4 +31,9 @@ class InvoiceLineAddedEvent extends DomainEvent
     {
         return $this->get(self::QUANTITY);
     }
+
+    protected function buildAggregateId(string $aggregateId)
+    {
+        return InvoiceId::fromString($aggregateId);
+    }
 }

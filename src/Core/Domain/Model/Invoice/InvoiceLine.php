@@ -3,19 +3,22 @@
 namespace Core\Domain\Model\Invoice;
 
 use Core\Domain\Model\Track\Track;
-use SharedKernel\Domain\Aggregate\Entity;
+use Core\Domain\Model\Track\TrackId;
+use SharedKernel\Domain\Aggregate\EntityIdTrait;
 
-class InvoiceLine extends Entity
+class InvoiceLine
 {
+    use EntityIdTrait;
+
     /**
      * @var Invoice
      */
     private $invoice;
 
     /**
-     * @var Track
+     * @var TrackId
      */
-    private $track;
+    private $trackId;
 
     /**
      * @var float
@@ -27,11 +30,11 @@ class InvoiceLine extends Entity
      */
     private $quantity;
 
-    public function __construct(Invoice $invoice, InvoiceLineId $id, Track $track, float $unitPrice, int $quantity)
+    public function __construct(Invoice $invoice, InvoiceLineId $id, TrackId $trackId, float $unitPrice, int $quantity)
     {
-        parent::__construct($id);
+        $this->setId($id);
         $this->invoice = $invoice;
-        $this->track = $track;
+        $this->trackId = $trackId;
         $this->unitPrice = $unitPrice;
         $this->quantity = $quantity;
     }
@@ -41,9 +44,9 @@ class InvoiceLine extends Entity
         return $this->invoice;
     }
 
-    public function track(): Track
+    public function trackId(): TrackId
     {
-        return $this->track;
+        return $this->trackId;
     }
 
     public function unitPrice(): float

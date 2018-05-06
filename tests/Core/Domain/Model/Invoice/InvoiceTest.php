@@ -84,7 +84,7 @@ class InvoiceTest extends TestCase
         $this->assertInstanceOf(InvoiceLineAddedEvent::class, $eventGenerated);
         $this->assertEquals($eventGenerated->getInvoiceLineId(), $invoiceLineAdded->id());
         $this->assertEquals($eventGenerated->aggregateRootId(), $invoice->id());
-        $this->assertEquals($eventGenerated->trackId(), $invoiceLineAdded->track()->id());
+        $this->assertEquals($eventGenerated->trackId(), $invoiceLineAdded->trackId());
         $this->assertEquals($eventGenerated->quantity(), $invoiceLineAdded->quantity());
         $this->assertEquals($eventGenerated->unitPrice(), self::FAKE_UNIT_PRICE_IN_INVOICE_LINE);
     }

@@ -2,8 +2,7 @@
 
 namespace Core\Domain\Model\Artist;
 
-use SharedKernel\Common\Collection\ArrayCollection;
-use SharedKernel\Common\Collection\Collection;
+use Core\Domain\Model\Album\AlbumIdCollection;
 use SharedKernel\Domain\Aggregate\AggregateRoot;
 use Core\Domain\Model\Album\Album;
 
@@ -15,14 +14,14 @@ class Artist extends AggregateRoot
     private $name;
 
     /**
-     * @var Collection
+     * @var AlbumIdCollection
      */
-    private $albums;
+    private $albumIds;
 
     public function __construct(ArtistId $id, string $name)
     {
         parent::__construct($id);
-        $this->albums = ArrayCollection::createEmpty();
+        $this->albumIds = AlbumIdCollection::createEmpty();
         $this->name = $name;
     }
 
@@ -38,16 +37,16 @@ class Artist extends AggregateRoot
 
     public function addAlbum(Album $album): void
     {
-        $this->albums->add($album);
+        $this->albumIds->add($album->id());
     }
 
     public function removeAlbum(Album $album): void
     {
-        $this->albums->removeElement($album);
+        $this->albumIds->removeElement($album->id());
     }
 
-    public function albums(): Collection
+    public function albumIds(): AlbumIdCollection
     {
-        return $this->albums;
+        return $this->albumIds;
     }
 }

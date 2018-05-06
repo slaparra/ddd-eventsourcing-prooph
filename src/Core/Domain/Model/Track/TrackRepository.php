@@ -18,7 +18,7 @@ interface TrackRepository extends EntityRepository
 
     public function find(TrackId $id): ?Track;
 
-    public function findByCriteria(TrackRepositoryCriteria $criteria): Collection;
+    public function findByCriteria(TrackCriteria $criteria): Collection;
 
     public function save(Track $track): void;
 }

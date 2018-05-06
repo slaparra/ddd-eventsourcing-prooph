@@ -65,7 +65,7 @@ class CreateTrackCommandHandlerTest extends TestCase
     private function assertTheTrackSavedShouldHasTheSamePreviousAlbumFoundClosure(CreateTrackCommand $command): \Closure
     {
         return function (Track $track) use ($command) {
-            return $track->album()->id()->toString() === $command->albumId();
+            return $track->albumId()->toString() === $command->albumId();
         };
     }
 

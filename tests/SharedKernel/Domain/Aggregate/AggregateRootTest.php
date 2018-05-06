@@ -61,6 +61,8 @@ class AggregateRootTest extends TestCase
                 parent::__construct($id);
                 $this->addEvent(FakeDomainEvent::fromPayload($id,[]));
             }
+
+            protected function whenFakeDomainEvent(FakeDomainEvent $domainEvent) {}
         };
 
         $this->assertInstanceOf(EventStream::class, $aggregate->pullEvents());
@@ -80,6 +82,8 @@ class AggregateRootTest extends TestCase
                 parent::__construct($id);
                 $this->addEvent(FakeDomainEvent::fromPayload($id,[]));
             }
+
+            protected function whenFakeDomainEvent(FakeDomainEvent $domainEvent) {}
         };
 
         $this->assertContainsOnlyInstancesOf(DomainEvent::class, $aggregate->pullEvents());
@@ -99,6 +103,8 @@ class AggregateRootTest extends TestCase
                 parent::__construct($id);
                 $this->addEvent(FakeDomainEvent::fromPayload($id,[]));
             }
+
+            protected function whenFakeDomainEvent(FakeDomainEvent $domainEvent) {}
         };
 
         $eventStreamWithEvent = $aggregate->pullEvents();

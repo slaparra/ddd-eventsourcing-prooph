@@ -18,7 +18,7 @@ class DomainEventTest extends TestCase
     public function givenAUuidWhenFromPayloadIsCalledThenItShouldReturnADomainEventInstance()
     {
         $aggregateRootId = FakeUuidBuilder::build();
-        $domainEvent = DomainEvent::fromPayload($aggregateRootId, []);
+        $domainEvent = FakeDomainEvent::fromPayload($aggregateRootId, []);
 
         $this->assertInstanceOf(DomainEvent::class, $domainEvent);
         $this->assertEquals($aggregateRootId, $domainEvent->aggregateRootId());
@@ -33,9 +33,9 @@ class DomainEventTest extends TestCase
     public function givenAUuidWhenGetPayloadMethodIsCalledThenItShouldHasAggregateRootIdWithEntityIdKey()
     {
         $aggregateRootId = FakeUuidBuilder::build();
-        $domainEvent = DomainEvent::fromPayload($aggregateRootId, []);
+        $domainEvent = FakeDomainEvent::fromPayload($aggregateRootId, []);
 
-        $this->assertArrayHasKey(DomainEvent::KEY_ENTITY_ID, $domainEvent->payload());
+        $this->assertArrayHasKey('_aggregate_id', $domainEvent->metadata());
     }
 
     /**
@@ -47,11 +47,9 @@ class DomainEventTest extends TestCase
     {
         $aggregateRootId = FakeUuidBuilder::build();
         $aPayload = ['aKey' => 'aValue', 'aSecondKey' => 'aSecondValue'];
-        $domainEvent = DomainEvent::fromPayload($aggregateRootId, $aPayload);
+        $domainEvent = FakeDomainEvent::fromPayload($aggregateRootId, $aPayload);
 
-        $expectedPayload = array_merge($aPayload, [DomainEvent::KEY_ENTITY_ID => $aggregateRootId->toString()]);
-
-        $this->assertEquals($expectedPayload, $domainEvent->payload()->toArray());
+        $this->assertEquals($aPayload, $domainEvent->payload());
     }
 
     /**
@@ -64,7 +62,7 @@ class DomainEventTest extends TestCase
     {
         $aggregateRootId = FakeUuidBuilder::build();
         $aPayload = ['aKey' => 'aValue'];
-        $domainEvent = DomainEvent::fromPayload($aggregateRootId, $aPayload);
+        $domainEvent = FakeDomainEvent::fromPayload($aggregateRootId, $aPayload);
 
         $this->assertEquals('aValue', $domainEvent->get('aKey'));
     }
@@ -77,7 +75,7 @@ class DomainEventTest extends TestCase
      */
     public function givenADomainEventWhenGetMethodDoesNotFindTheKeyRequestedThenItShouldThrowAssertionFailedException()
     {
-        $domainEvent = DomainEvent::fromPayload(FakeUuidBuilder::build(), []);
+        $domainEvent = FakeDomainEvent::fromPayload(FakeUuidBuilder::build(), []);
 
         $this->expectException(AssertionFailedException::class);
 
@@ -93,8 +91,8 @@ class DomainEventTest extends TestCase
     {
         $aggregateRootId = FakeUuidBuilder::build();
         $expectedDateTime = new \DateTimeImmutable();
-        $domainEvent = DomainEvent::fromPayload($aggregateRootId, []);
+        $domainEvent = FakeDomainEvent::fromPayload($aggregateRootId, []);
 
-        $this->assertEquals($expectedDateTime->getTimestamp(), $domainEvent->occurredOn()->getTimestamp(), '', 2);
+        $this->assertEquals($expectedDateTime->getTimestamp(), $domainEvent->createdAt()->getTimestamp(), '', 2);
     }
 }

@@ -4,14 +4,14 @@ namespace SharedKernel\Domain\Aggregate;
 
 use SharedKernel\Common\Uuid;
 
-abstract class Entity
+trait EntityIdTrait
 {
     /**
      * @var Uuid
      */
     private $id;
 
-    protected function __construct(Uuid $id)
+    private function setId(Uuid $id)
     {
         $this->id = $id;
     }

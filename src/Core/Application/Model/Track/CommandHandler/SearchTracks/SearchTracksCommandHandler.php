@@ -7,7 +7,7 @@ use Core\Domain\Model\Track\Track;
 use SharedKernel\Application\Command\Command;
 use SharedKernel\Application\Command\CommandHandler;
 use Core\Domain\Model\Track\TrackRepository;
-use Core\Domain\Model\Track\TrackRepositoryCriteria;
+use Core\Domain\Model\Track\TrackCriteria;
 use SharedKernel\Application\Command\CommandResult;
 
 class SearchTracksCommandHandler extends CommandHandler
@@ -31,13 +31,13 @@ class SearchTracksCommandHandler extends CommandHandler
         $from = ($command->page() - 1) * TrackRepository::SIZE;
 
         $trackCollection = $this->trackRepository->findByCriteria(
-            TrackRepositoryCriteria::instance(
+            TrackCriteria::instance(
                 $command->albumId(),
                 $command->albumTitle(),
                 $command->trackName(),
                 $command->composer(),
                 $command->page(),
-                ['id' => 'asc'],
+                ['name' => 'asc'],
                 TrackRepository::SIZE,
                 $from
             )

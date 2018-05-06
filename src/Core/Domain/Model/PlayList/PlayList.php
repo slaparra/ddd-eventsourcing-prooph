@@ -2,8 +2,7 @@
 
 namespace Core\Domain\Model\PlayList;
 
-use SharedKernel\Common\Collection\ArrayCollection;
-use SharedKernel\Common\Collection\Collection;
+use Core\Domain\Model\Track\TrackIdCollection;
 use SharedKernel\Domain\Aggregate\AggregateRoot;
 use Core\Domain\Model\Track\Track;
 
@@ -15,9 +14,9 @@ class PlayList extends AggregateRoot
     private $name;
 
     /**
-     * @var Collection
+     * @var TrackIdCollection
      */
-    private $tracks;
+    private $trackIds;
 
     /**
      * @var \DateTime
@@ -27,7 +26,7 @@ class PlayList extends AggregateRoot
     protected function __construct(PlayListId $id, string $name)
     {
         parent::__construct($id);
-        $this->tracks = ArrayCollection::createEmpty();
+        $this->trackIds = TrackIdCollection::createEmpty();
         $this->name = $name;
     }
 
@@ -43,20 +42,17 @@ class PlayList extends AggregateRoot
 
     public function addTrack(Track $track): void
     {
-        $this->tracks->add($track);
+        $this->trackIds->add($track->id());
     }
 
     public function removeTrack(Track $track): void
     {
-        $this->tracks->removeElement($track);
+        $this->trackIds->removeElement($track->id());
     }
 
-    /**
-     * @return Collection|Track[]
-     */
-    public function tracks(): Collection
+    public function trackIds(): TrackIdCollection
     {
-        return $this->tracks;
+        return $this->trackIds;
     }
 
     public function updatedAt(): \DateTime
@@ -64,11 +60,8 @@ class PlayList extends AggregateRoot
         return $this->updatedAt;
     }
 
-    /**
-     * @return int
-     */
     public function countOfTracks(): int
     {
-        return $this->tracks->count();
+        return $this->trackIds->count();
     }
 }

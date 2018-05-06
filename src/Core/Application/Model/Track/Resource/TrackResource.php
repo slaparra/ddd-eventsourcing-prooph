@@ -18,9 +18,9 @@ class TrackResource
     private $name;
 
     /**
-     * @var AlbumResource
+     * @var string
      */
-    private $albumResource;
+    private $albumId;
 
     /**
      * @var string
@@ -55,7 +55,7 @@ class TrackResource
     private function __construct(
         string $id,
         string $name,
-        AlbumResource $albumResource,
+        string $albumId,
         string $mediaType,
         int $genre,
         string $composer,
@@ -65,7 +65,7 @@ class TrackResource
     ) {
         $this->id = $id;
         $this->name = $name;
-        $this->albumResource = $albumResource;
+        $this->albumId = $albumId;
         $this->mediaType = $mediaType;
         $this->genre = $genre;
         $this->composer = $composer;
@@ -79,7 +79,7 @@ class TrackResource
         return new static(
             $track->id()->toString(),
             $track->name(),
-            AlbumResource::fromAlbum($track->album()),
+            $track->albumId()->toString(),
             $track->mediaType()->value(),
             $track->genre()->value(),
             $track->composer(),
@@ -99,9 +99,9 @@ class TrackResource
         return $this->name;
     }
 
-    public function albumResource(): AlbumResource
+    public function albumId(): string
     {
-        return $this->albumResource;
+        return $this->albumId;
     }
 
     public function mediaType(): string

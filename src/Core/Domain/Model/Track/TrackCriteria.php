@@ -2,13 +2,10 @@
 
 namespace Core\Domain\Model\Track;
 
-class TrackRepositoryCriteria
-{
-    /**
-     * @var int
-     */
-    private $page;
+use SharedKernel\Domain\Repository\Criteria;
 
+class TrackCriteria extends Criteria
+{
     /**
      * @var string
      */
@@ -25,43 +22,25 @@ class TrackRepositoryCriteria
     private $composer;
 
     /**
-     * @var array
-     */
-    private $order;
-
-    /**
-     * @var int
-     */
-    private $size;
-
-    /**
-     * @var int
-     */
-    private $from;
-
-    /**
      * @var string
      */
     private $albumId;
 
-    private function __construct(
+    protected function __construct(
         string $albumId = null,
         string $albumTitle = null,
         string $trackName = null,
         string $composer = null,
         int $page = 1,
-        array $order = ['id' => 'asc'],
+        array $order = ['name' => 'asc'],
         int $size = TrackRepository::SIZE,
         int $from = 1
     ) {
+        parent::__construct($page, $order, $size, $from);
         $this->albumId = $albumId;
         $this->albumTitle = $albumTitle;
         $this->trackName = $trackName;
         $this->composer = $composer;
-        $this->page = $page;
-        $this->order = $order;
-        $this->size = $size;
-        $this->from = $from;
     }
 
     public static function instance(
@@ -73,7 +52,7 @@ class TrackRepositoryCriteria
         array $order = ['name' => 'asc'],
         int $size = TrackRepository::SIZE,
         int $from = 1
-    ): TrackRepositoryCriteria {
+    ): TrackCriteria {
         return new static($albumId, $albumTitle, $trackName, $composer, $page, $order, $size, $from);
     }
 
@@ -95,25 +74,5 @@ class TrackRepositoryCriteria
     public function composer(): ?string
     {
         return $this->composer;
-    }
-
-    public function page(): int
-    {
-        return $this->page;
-    }
-
-    public function order(): array
-    {
-        return $this->order;
-    }
-
-    public function size(): int
-    {
-        return $this->size;
-    }
-
-    public function from(): int
-    {
-        return $this->from;
     }
 }

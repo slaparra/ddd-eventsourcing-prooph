@@ -7,7 +7,7 @@ use Core\Application\Model\Track\CommandHandler\SearchTracks\SearchTracksCommand
 use Core\Application\Model\Track\CommandHandler\SearchTracks\SearchTracksCommandResult;
 use Core\Application\Model\Track\Resource\TrackResource;
 use Core\Domain\Model\Track\TrackRepository;
-use Core\Domain\Model\Track\TrackRepositoryCriteria;
+use Core\Domain\Model\Track\TrackCriteria;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -92,7 +92,7 @@ class SearchTracksCommandHandlerTest extends TestCase
 
     private function assertTrackRepositoryCriteriaIsBuiltWithProperValues(SearchTracksCommand $command): \Closure
     {
-        return function (TrackRepositoryCriteria $trackRepositoryCriteria) use ($command) {
+        return function (TrackCriteria $trackRepositoryCriteria) use ($command) {
             return $trackRepositoryCriteria->albumTitle() === $command->albumTitle()
                    && $trackRepositoryCriteria->trackName() === $command->trackName()
                    && $trackRepositoryCriteria->composer() === $command->composer()
